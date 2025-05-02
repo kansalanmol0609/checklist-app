@@ -1,59 +1,58 @@
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import React, { useEffect, useState, createContext } from 'react';
+import { Slot } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
+import { Checklist } from './types';
 
-import { useColorScheme } from '@/components/useColorScheme';
+export const ChecklistContext = createContext<{
+  checklists: Checklist[];
+  setChecklists: (checklists: Checklist[]) => void;
+}>({
+  checklists: [],
+  setChecklists: () => {},
+});
 
-export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
-} from 'expo-router';
-
-export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: '(tabs)',
-};
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
+// Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
 
+// Set the animation options. This is optional.
+SplashScreen.setOptions({
+  duration: 1000,
+  fade: true,
+});
+
 export default function RootLayout() {
-  const [loaded, error] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-    ...FontAwesome.font,
-  });
+  const [checklists, setChecklists] = useState<Checklist[]>([]);
+  const [isReady, setIsReady] = useState(false);
 
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
+  // Load from AsyncStorage once
   useEffect(() => {
-    if (error) throw error;
-  }, [error]);
+    (async () => {
+      const stored = await AsyncStorage.getItem('checklists');
+      if (stored) setChecklists(JSON.parse(stored));
+      setIsReady(true);
+    })();
+  }, []);
 
+  // Persist on changes
   useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
+    if (isReady) {
+      AsyncStorage.setItem('checklists', JSON.stringify(checklists));
+
+      // This tells the splash screen to hide immediately! If we call this after
+      // `setAppIsReady`, then we may see a blank screen while the app is
+      // loading its initial state and rendering its first pixels. So instead,
+      // we hide the splash screen once we know the root view has already
+      // performed layout.
+      SplashScreen.hide();
     }
-  }, [loaded]);
+  }, [checklists, isReady]);
 
-  if (!loaded) {
-    return null;
-  }
-
-  return <RootLayoutNav />;
-}
-
-function RootLayoutNav() {
-  const colorScheme = useColorScheme();
+  // if (!isReady) return <SplashScreen />;
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-      </Stack>
-    </ThemeProvider>
+    <ChecklistContext.Provider value={{ checklists, setChecklists }}>
+      <Slot />
+    </ChecklistContext.Provider>
   );
 }
