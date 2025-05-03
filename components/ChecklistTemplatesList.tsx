@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   FlatList,
   View,
@@ -8,13 +8,21 @@ import {
 } from 'react-native';
 import { Card, Title } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import { useData } from '@/contexts/data';
-import { ChecklistTemplate } from '@/types';
 import { CHECKLIST_COLOR_SCHEMES } from '@/constants/checklistColorSchemes';
+import FilterBar from '@/components/FilterBar';
+import { ChecklistTemplate } from '@/types';
 
-export default function ChecklistTemplatesList() {
+export default function TemplatesList() {
   const { templates, isReady } = useData();
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedColor, setSelectedColor] = useState<
+    keyof typeof CHECKLIST_COLOR_SCHEMES | undefined
+  >(undefined);
   const { width } = useWindowDimensions();
+  const navigation = useNavigation();
 
   // Determine columns: mobile = 1, web/tablet = 2 or 3
   let numColumns = 1;
@@ -23,11 +31,30 @@ export default function ChecklistTemplatesList() {
 
   if (!isReady) return null;
 
+  // Filter templates by search text and color
+  const filtered = templates.filter((t) => {
+    const matchesColor = selectedColor ? t.colorScheme === selectedColor : true;
+    if (!matchesColor) return false;
+
+    if (!searchQuery.trim()) return true;
+
+    const inTitle = t.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const inItems = t.items.some((it) =>
+      it.text.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    return inTitle || inItems;
+  });
+
+  const handleAddTemplate = () => {
+    // Navigate to your template creation screen
+    // navigation.navigate('CreateTemplate');
+  };
+
   const renderTemplate = ({ item }: { item: ChecklistTemplate }) => {
     const scheme = CHECKLIST_COLOR_SCHEMES[item.colorScheme];
     const maxItems = 5;
-    const hasMore = item.items.length > maxItems;
     const visibleItems = item.items.slice(0, maxItems);
+    const hasMore = item.items.length > maxItems;
 
     return (
       <Card style={[styles.card, { backgroundColor: scheme.background }]}>
@@ -73,21 +100,59 @@ export default function ChecklistTemplatesList() {
     );
   };
 
+  // Empty state when no templates exist
+  const renderEmpty = () => (
+    <View style={styles.emptyContainer}>
+      <MaterialCommunityIcons name="playlist-plus" size={48} color="#999" />
+      <Text style={styles.emptyText}>
+        Create your first template by clicking the + icon above.
+      </Text>
+    </View>
+  );
+
+  // No match state when filter yields nothing
+  const renderNoMatch = () => (
+    <View style={styles.emptyContainer}>
+      <MaterialCommunityIcons name="magnify" size={48} color="#999" />
+      <Text style={styles.emptyText}>No templates match your search.</Text>
+    </View>
+  );
+
   return (
-    <FlatList
-      key={numColumns}
-      data={templates}
-      keyExtractor={(t) => t.id}
-      renderItem={renderTemplate}
-      numColumns={numColumns}
-      columnWrapperStyle={numColumns > 1 ? styles.row : undefined}
-      contentContainerStyle={styles.container}
-    />
+    <View style={styles.container}>
+      <FilterBar
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        selectedColor={selectedColor}
+        onColorPress={setSelectedColor}
+        onAddPress={handleAddTemplate}
+      />
+
+      {!templates.length ? (
+        renderEmpty()
+      ) : filtered.length === 0 ? (
+        renderNoMatch()
+      ) : (
+        <FlatList
+          key={numColumns}
+          data={filtered}
+          keyExtractor={(t) => t.id}
+          renderItem={renderTemplate}
+          numColumns={numColumns}
+          columnWrapperStyle={numColumns > 1 ? styles.row : undefined}
+          contentContainerStyle={styles.listContainer}
+        />
+      )}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    backgroundColor: '#F9FAFB',
+  },
+  listContainer: {
     padding: 16,
   },
   row: {
@@ -130,5 +195,17 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontSize: 14,
     fontStyle: 'italic',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 32,
+  },
+  emptyText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
   },
 });

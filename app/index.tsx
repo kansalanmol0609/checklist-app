@@ -1,16 +1,16 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Text, BottomNavigation } from 'react-native-paper';
+import { StyleSheet } from 'react-native';
+import { BottomNavigation } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useData } from '@/contexts/data';
 import ChecklistTemplatesList from '@/components/ChecklistTemplatesList';
 import ChecklistsList from '@/components/ChecklistList';
+import Header from '@/components/Header';
 
 const ROUTES = [
   {
-    key: 'checklist',
-    title: 'Checklist',
+    key: 'checklists',
+    title: 'Checklists',
     icon: ({ color, size }: { color: string; size: number }) => (
       <MaterialCommunityIcons
         name="checkbox-marked-outline"
@@ -32,20 +32,21 @@ const ROUTES = [
   },
 ];
 
+const RENDER_SCENE = BottomNavigation.SceneMap({
+  checklists: ChecklistsList,
+  templates: ChecklistTemplatesList,
+});
+
 export default function HomePage() {
   const [index, setIndex] = React.useState(0);
 
-  const renderScene = BottomNavigation.SceneMap({
-    checklist: ChecklistsList,
-    templates: ChecklistTemplatesList,
-  });
-
   return (
     <SafeAreaView style={styles.container}>
+      <Header title={index === 0 ? 'Checklists' : 'Templates'} />
       <BottomNavigation
         navigationState={{ index, routes: ROUTES }}
         onIndexChange={setIndex}
-        renderScene={renderScene}
+        renderScene={RENDER_SCENE}
         renderIcon={({ route, focused, color }) => {
           const icon = ROUTES.find((r) => r.key === route.key)?.icon;
           return icon ? icon({ color, size: focused ? 24 : 20 }) : null;
