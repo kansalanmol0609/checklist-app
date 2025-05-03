@@ -1,0 +1,75 @@
+import { type Checklist } from '@/types';
+
+export const MOCK_CHECKLISTS: Checklist[] = [
+  {
+    id: 'chk-grocery',
+    title: 'Grocery Shopping',
+    icon: 'cart',
+    colorScheme: 'lemon',
+    items: [
+      { id: 'grocery-1', text: 'Milk', completed: false },
+      { id: 'grocery-2', text: 'Eggs', completed: true },
+      { id: 'grocery-3', text: 'Whole grain bread', completed: false },
+      { id: 'grocery-4', text: 'Apples', completed: false },
+      { id: 'grocery-5', text: 'Carrots', completed: false },
+      { id: 'grocery-6', text: 'Bananas', completed: true },
+      { id: 'grocery-7', text: 'Yogurt', completed: false },
+    ],
+  },
+  {
+    id: 'chk-work',
+    title: 'Work Tasks',
+    icon: 'briefcase',
+    colorScheme: 'peach',
+    items: [
+      { id: 'work-1', text: 'Send project update email', completed: true },
+      { id: 'work-2', text: 'Review PR #42', completed: false },
+      { id: 'work-3', text: 'Team stand-up meeting', completed: true },
+      { id: 'work-4', text: 'Finish presentation slides', completed: false },
+      { id: 'work-5', text: 'Plan next sprint', completed: false },
+      { id: 'work-6', text: 'Respond to client feedback', completed: false },
+    ],
+  },
+  {
+    id: 'chk-vacation',
+    title: 'Vacation Packing',
+    icon: 'airplane',
+    colorScheme: 'mint',
+    items: [
+      { id: 'vac-1', text: 'Passport & tickets', completed: true },
+      { id: 'vac-2', text: 'Toiletries bag', completed: false },
+      { id: 'vac-3', text: 'Sunscreen', completed: false },
+      { id: 'vac-4', text: 'Swimsuits (2)', completed: true },
+      { id: 'vac-5', text: 'Camera & chargers', completed: false },
+      { id: 'vac-6', text: 'Travel adapter', completed: false },
+    ],
+  },
+  {
+    id: 'chk-birthday',
+    title: 'Birthday Party',
+    icon: 'cake',
+    colorScheme: 'sky',
+    items: [
+      { id: 'party-1', text: 'Finalize guest list', completed: true },
+      { id: 'party-2', text: 'Order cake', completed: false },
+      { id: 'party-3', text: 'Send invitations', completed: true },
+      { id: 'party-4', text: 'Buy decorations', completed: false },
+      { id: 'party-5', text: 'Plan menu', completed: false },
+      { id: 'party-6', text: 'Prepare playlist', completed: false },
+    ],
+  },
+  {
+    id: 'chk-cleaning',
+    title: 'Weekly Cleaning',
+    icon: 'broom',
+    colorScheme: 'lavender',
+    items: [
+      { id: 'clean-1', text: 'Vacuum living room', completed: false },
+      { id: 'clean-2', text: 'Dust shelves & décor', completed: true },
+      { id: 'clean-3', text: 'Clean bathrooms', completed: false },
+      { id: 'clean-4', text: 'Mop kitchen floor', completed: false },
+      { id: 'clean-5', text: 'Wash dinner dishes', completed: true },
+      { id: 'clean-6', text: 'Do laundry & fold', completed: false },
+    ],
+  },
+];
