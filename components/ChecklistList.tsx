@@ -46,6 +46,16 @@ export default function ChecklistsList() {
     return inTitle || inItems;
   });
 
+  const sortedChecklists = filtered.sort((a, b) => {
+    const aCompleted = a.items.every((item) => item.completed);
+    const bCompleted = b.items.every((item) => item.completed);
+
+    if (aCompleted && !bCompleted) return 1;
+    if (!aCompleted && bCompleted) return -1;
+
+    return 0; // Maintain the same order if both are completed or non-completed
+  });
+
   const handleAddChecklist = () => router.push('/checklist/create');
 
   const renderChecklist = ({ item }: { item: Checklist }) => {
@@ -147,11 +157,11 @@ export default function ChecklistsList() {
 
       {!checklists.length ? (
         renderEmpty()
-      ) : filtered.length === 0 ? (
+      ) : sortedChecklists.length === 0 ? (
         renderNoMatch()
       ) : (
         <FlatList
-          data={filtered}
+          data={sortedChecklists}
           keyExtractor={(c) => c.id}
           renderItem={renderChecklist}
           numColumns={numColumns}
