@@ -15,7 +15,11 @@
     },
     "ios": {
       "buildNumber": "1",
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.kansalanmol0609.checklistapp",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "versionCode": 1,
@@ -23,7 +27,8 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.kansalanmol0609.checklistapp"
     },
     "web": {
       "bundler": "metro",
@@ -35,6 +40,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "41dcb825-2bf5-4d6f-8cef-cba64c856193"
+      }
     }
   }
 }
