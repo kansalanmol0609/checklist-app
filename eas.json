@@ -13,12 +13,14 @@
         "buildType": "apk"
       },
       "ios": {
-        "simulator": "true"
+        "buildType": "release"
       },
       "distribution": "internal"
     },
     "production": {
-      "autoIncrement": true
+      "ios": {
+        "buildType": "release"
+      }
     }
   },
   "submit": {
