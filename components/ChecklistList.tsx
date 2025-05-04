@@ -5,10 +5,11 @@ import {
   StyleSheet,
   useWindowDimensions,
   Text,
+  TouchableOpacity,
 } from 'react-native';
 import { Card, Title } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 import { useData } from '@/contexts/data';
 import { CHECKLIST_COLOR_SCHEMES } from '@/constants/checklistColorSchemes';
 import FilterBar from '@/components/FilterBar';
@@ -21,7 +22,7 @@ export default function ChecklistsList() {
     keyof typeof CHECKLIST_COLOR_SCHEMES | undefined
   >(undefined);
   const { width } = useWindowDimensions();
-  const navigation = useNavigation();
+  const router = useRouter();
 
   // Determine columns based on width
   let numColumns = 1;
@@ -45,7 +46,7 @@ export default function ChecklistsList() {
     return inTitle || inItems;
   });
 
-  const handleAddChecklist = () => {};
+  const handleAddChecklist = () => router.push('/checklist/create');
 
   const renderChecklist = ({ item }: { item: Checklist }) => {
     const scheme = CHECKLIST_COLOR_SCHEMES[item.colorScheme];
@@ -53,48 +54,65 @@ export default function ChecklistsList() {
     const visibleItems = item.items.slice(0, maxItems);
     const hasMore = item.items.length > maxItems;
 
+    const completedCount = item.items.filter((i) => i.completed).length;
+    const totalCount = item.items.length;
+
     return (
-      <Card style={[styles.card, { backgroundColor: scheme.background }]}>
-        <Card.Content>
-          <View style={styles.header}>
-            <MaterialCommunityIcons
-              name={item.icon}
-              size={24}
-              color={scheme.icon}
-              style={styles.icon}
-            />
-            <Title style={[styles.title, { color: scheme.text }]}>
-              {item.title}
-            </Title>
-          </View>
-          <View style={styles.itemsContainer}>
-            {visibleItems.map((it) => (
-              <View key={it.id} style={styles.itemRow}>
-                <MaterialCommunityIcons
-                  name={
-                    it.completed ? 'checkbox-marked' : 'checkbox-blank-outline'
-                  }
-                  size={16}
-                  color={scheme.icon}
-                  style={styles.itemIcon}
-                />
-                <Text
-                  style={[styles.itemText, { color: scheme.text }]}
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                >
-                  {it.text}
+      <TouchableOpacity
+        activeOpacity={0.8}
+        onPress={() => router.push(`/checklist/view/${item.id}`)}
+        style={[styles.cardWrapper, { backgroundColor: scheme.background }]}
+      >
+        <Card style={[styles.card, { backgroundColor: scheme.background }]}>
+          <Card.Content>
+            <View style={styles.header}>
+              <MaterialCommunityIcons
+                name={item.icon}
+                size={24}
+                color={scheme.icon}
+                style={styles.icon}
+              />
+              <View style={styles.titleBlock}>
+                <Title style={[styles.title, { color: scheme.text }]}>
+                  {item.title}
+                </Title>
+
+                <Text style={[styles.subText, { color: scheme.text }]}>
+                  {completedCount} / {totalCount} done
                 </Text>
               </View>
-            ))}
-            {hasMore && (
-              <Text style={[styles.moreText, { color: scheme.icon }]}>
-                +{item.items.length - maxItems} more
-              </Text>
-            )}
-          </View>
-        </Card.Content>
-      </Card>
+            </View>
+            <View style={styles.itemsContainer}>
+              {visibleItems.map((it) => (
+                <View key={it.id} style={styles.itemRow}>
+                  <MaterialCommunityIcons
+                    name={
+                      it.completed
+                        ? 'checkbox-marked'
+                        : 'checkbox-blank-outline'
+                    }
+                    size={16}
+                    color={scheme.icon}
+                    style={styles.itemIcon}
+                  />
+                  <Text
+                    style={[styles.itemText, { color: scheme.text }]}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {it.text}
+                  </Text>
+                </View>
+              ))}
+              {hasMore && (
+                <Text style={[styles.moreText, { color: scheme.icon }]}>
+                  +{item.items.length - maxItems} more
+                </Text>
+              )}
+            </View>
+          </Card.Content>
+        </Card>
+      </TouchableOpacity>
     );
   };
 
@@ -105,10 +123,6 @@ export default function ChecklistsList() {
       <Text style={styles.emptyText}>
         Create your first checklist by clicking the + icon above.
         <View style={{ height: 8 }} />
-      </Text>
-      <Text style={styles.emptyText}>
-        Note that before creating checklists, you need to create a template
-        first.
       </Text>
     </View>
   );
@@ -156,13 +170,20 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     padding: 16,
+    rowGap: 16,
   },
   row: {
     justifyContent: 'space-between',
+    columnGap: 16,
+  },
+
+  cardWrapper: {
+    flex: 1,
+    margin: 0,
   },
   card: {
     flex: 1,
-    margin: 8,
+    margin: 0,
     borderRadius: 12,
     elevation: 2,
   },
@@ -172,7 +193,17 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   icon: { marginRight: 8 },
+  titleBlock: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   title: { fontSize: 16, fontWeight: 'bold' },
+  subText: {
+    fontSize: 14,
+    marginTop: 2,
+  },
   itemsContainer: { marginTop: 4 },
   itemRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 2 },
   itemIcon: { marginRight: 4 },

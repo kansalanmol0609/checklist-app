@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { TextInput, Button, useTheme } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { ChecklistTemplate, ChecklistTemplateItem } from '@/types';
+import { Checklist, ChecklistItem } from '@/types';
 import {
   CHECKLIST_COLOR_SCHEMES,
   DEFAULT_CHECKLIST_COLOR_SCHEME,
@@ -20,38 +20,50 @@ import IconPicker from '@/components/IconPicker';
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
 import { IconName } from '@/types';
+import TemplatePicker from './TemplatePicker';
+import { useData } from '@/contexts/data';
+import { DEFAULT_ICON } from '@/constants/icon';
 
-export interface ChecklistTemplateFormProps {
-  /** existing template to edit, or undefined for create */
-  template?: ChecklistTemplate;
-  /** called with new/updated template */
-  onSubmit: (tpl: ChecklistTemplate) => void;
+export interface ChecklistFormProps {
+  /** existing checklist to edit, or undefined for create */
+  checklist?: Checklist;
+  /** called with new/updated checklist */
+  onSubmit: (nextCheckList: Checklist) => void;
   /** called to cancel editing */
   onCancel: () => void;
+  showTemplatePicker?: boolean;
 }
 
-export default function ChecklistTemplateForm({
-  template,
+export default function ChecklistForm({
+  checklist,
   onSubmit,
   onCancel,
-}: ChecklistTemplateFormProps) {
+  showTemplatePicker,
+}: ChecklistFormProps) {
   const theme = useTheme();
-  // initialize state from template or defaults
-  const [title, setTitle] = useState(template?.title || '');
-  const [icon, setIcon] = useState<IconName>(template?.icon || 'briefcase');
+
+  const { templates } = useData();
+
+  // initialize state from checklist or defaults
+  const [title, setTitle] = useState(checklist?.title || '');
+  const [icon, setIcon] = useState<IconName>(checklist?.icon || 'briefcase');
   const [colorScheme, setColorScheme] = useState<
     keyof typeof CHECKLIST_COLOR_SCHEMES
-  >(template?.colorScheme || DEFAULT_CHECKLIST_COLOR_SCHEME);
-  const [items, setItems] = useState<ChecklistTemplateItem[]>(
-    template?.items.map((i) => ({ ...i })) || [{ id: uuidv4(), text: '' }]
+  >(checklist?.colorScheme || DEFAULT_CHECKLIST_COLOR_SCHEME);
+  const [items, setItems] = useState<ChecklistItem[]>(
+    checklist?.items.map((i) => ({ ...i })) || [
+      { id: uuidv4(), text: '', completed: false },
+    ]
   );
+
+  const [templateId, setTemplateId] = useState<string | undefined>(undefined);
 
   // Determine whether Save is enabled
   const canSave =
     title.trim() !== '' && items.some((i) => i.text.trim() !== '');
 
   const addItem = () =>
-    setItems((prev) => [...prev, { id: uuidv4(), text: '' }]);
+    setItems((prev) => [...prev, { id: uuidv4(), text: '', completed: false }]);
 
   const updateItem = (id: string, text: string) => {
     setItems((prev) => prev.map((i) => (i.id === id ? { ...i, text } : i)));
@@ -60,19 +72,47 @@ export default function ChecklistTemplateForm({
     setItems((prev) => prev.filter((i) => i.id !== id));
   };
 
+  const handleChangeTemplate = (templateId?: string) => {
+    setTemplateId(templateId);
+
+    if (templateId) {
+      // load existing template into form
+      const tpl = templates.find((t) => t.id === templateId);
+      if (tpl) {
+        setTitle(tpl.title);
+        setIcon(tpl.icon);
+        setColorScheme(tpl.colorScheme);
+        setItems(
+          tpl.items.map((i) => ({ id: i.id, text: i.text, completed: false }))
+        );
+      }
+    } else {
+      // reset to defaults
+      setTitle('');
+      setIcon(DEFAULT_ICON);
+      setColorScheme(DEFAULT_CHECKLIST_COLOR_SCHEME);
+      setItems([{ id: uuidv4(), text: '', completed: false }]);
+    }
+  };
+
   const handleSave = () => {
     if (!canSave) return;
 
     const filteredItems = items
       .filter((i) => i.text.trim() !== '')
-      .map((i, idx) => ({ id: i.id, text: i.text.trim() }));
+      .map((i, idx) => ({
+        id: i.id,
+        text: i.text.trim(),
+        completed: i.completed || false,
+      }));
 
-    const result: ChecklistTemplate = {
-      id: template?.id || uuidv4(),
+    const result: Checklist = {
+      id: checklist?.id || uuidv4(),
       title: title.trim(),
       icon,
       colorScheme,
       items: filteredItems,
+      templateId: showTemplatePicker ? templateId : undefined,
     };
     onSubmit(result);
   };
@@ -84,9 +124,20 @@ export default function ChecklistTemplateForm({
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <ScrollView contentContainerStyle={styles.container}>
-          <Text style={styles.label}>Template Name</Text>
+          {/* Template loader */}
+          {showTemplatePicker ? (
+            <>
+              <Text style={styles.label}>Select Existing Template</Text>
+              <TemplatePicker
+                value={templateId}
+                onChange={handleChangeTemplate}
+              />
+            </>
+          ) : null}
+
+          <Text style={styles.label}>Checklist Name</Text>
           <TextInput
-            placeholder="Template Name"
+            placeholder="Checklist Name"
             value={title}
             onChangeText={setTitle}
             mode="outlined"

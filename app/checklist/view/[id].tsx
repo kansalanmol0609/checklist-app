@@ -6,8 +6,9 @@ import {
   Text,
   Platform,
   Alert,
+  TouchableOpacity,
 } from 'react-native';
-import { Appbar, TextInput, useTheme } from 'react-native-paper';
+import { Appbar, ProgressBar, TextInput, useTheme } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useData } from '@/contexts/data';
@@ -17,10 +18,10 @@ export default function ViewChecklistTemplate() {
   const theme = useTheme();
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { templates, removeTemplate } = useData();
+  const { checklists, removeChecklist, updateChecklist } = useData();
 
-  const template = templates.find((t) => t.id === id);
-  if (!template) {
+  const checklist = checklists.find((t) => t.id === id);
+  if (!checklist) {
     return (
       <View style={styles.centered}>
         <Text style={styles.notFound}>Template not found</Text>
@@ -29,20 +30,22 @@ export default function ViewChecklistTemplate() {
   }
 
   const [searchQuery, setSearchQuery] = useState('');
-  const filteredItems = template.items.filter((item) =>
-    item.text.toLowerCase().includes(searchQuery.trim().toLowerCase())
-  );
+  const filteredItems = checklist.items
+    .filter((item) =>
+      item.text.toLowerCase().includes(searchQuery.trim().toLowerCase())
+    )
+    .sort((a, b) => Number(a.completed) - Number(b.completed));
 
-  const colorScheme = CHECKLIST_COLOR_SCHEMES[template.colorScheme];
+  const colorScheme = CHECKLIST_COLOR_SCHEMES[checklist.colorScheme];
 
   const handleEdit = () => {
-    router.push(`/checklist-template/edit/${id}`);
+    router.push(`/checklist/edit/${id}`);
   };
 
   const handleDelete = () => {
     Alert.alert(
-      'Delete Template',
-      'Are you sure you want to delete this template? This action cannot be undone.',
+      'Delete Checklist',
+      'Are you sure you want to delete this checklist? This action cannot be undone.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -50,7 +53,7 @@ export default function ViewChecklistTemplate() {
           style: 'destructive',
           onPress: async () => {
             router.back();
-            await removeTemplate(id);
+            await removeChecklist(id);
           },
         },
       ],
@@ -58,12 +61,16 @@ export default function ViewChecklistTemplate() {
     );
   };
 
+  const completedCount = checklist.items.filter((i) => i.completed).length;
+  const totalCount = checklist.items.length;
+  const progress = totalCount > 0 ? completedCount / totalCount : 0;
+
   return (
     <>
       <Appbar.Header style={styles.header} statusBarHeight={0}>
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content
-          title={template.title}
+          title={checklist.title}
           titleStyle={{
             color: colorScheme.text,
             fontSize: 18,
@@ -98,7 +105,7 @@ export default function ViewChecklistTemplate() {
           ]}
         >
           <MaterialCommunityIcons
-            name={template.icon as any}
+            name={checklist.icon as any}
             size={48}
             color={colorScheme.icon}
           />
@@ -112,8 +119,24 @@ export default function ViewChecklistTemplate() {
             marginBottom: 16,
           }}
         >
-          {template.title}
+          {checklist.title}
         </Text>
+
+        <View
+          style={[
+            styles.progressContainer,
+            { backgroundColor: colorScheme.background },
+          ]}
+        >
+          <ProgressBar
+            progress={progress}
+            color={colorScheme.icon}
+            style={styles.progressBar}
+          />
+          <Text style={[styles.progressText, { color: colorScheme.text }]}>
+            {completedCount} / {totalCount} done
+          </Text>
+        </View>
 
         {/* Search Items */}
         <TextInput
@@ -128,23 +151,33 @@ export default function ViewChecklistTemplate() {
 
         {/* Items List */}
         {filteredItems.map((item) => (
-          <View
+          <TouchableOpacity
             key={item.id}
-            style={[
-              styles.itemRow,
-              { backgroundColor: colorScheme.background },
-            ]}
+            onPress={() => {
+              updateChecklist({
+                ...checklist,
+                items: checklist.items.map((i) =>
+                  i.id === item.id ? { ...i, completed: !item.completed } : i
+                ),
+              });
+            }}
+            style={{ marginBottom: 12 }}
           >
-            <MaterialCommunityIcons
-              name="checkbox-blank-outline"
-              size={20}
-              color={colorScheme.icon}
-              style={styles.itemIcon}
-            />
-            <Text style={[styles.itemText, { color: colorScheme.text }]}>
-              {item.text}
-            </Text>
-          </View>
+            <View style={[styles.itemRow]}>
+              <MaterialCommunityIcons
+                name={
+                  item.completed ? 'checkbox-marked' : 'checkbox-blank-outline'
+                }
+                size={24}
+                color={colorScheme.icon}
+                style={styles.itemIcon}
+                aria-checked={item.completed}
+              />
+              <Text style={[styles.itemText, { color: colorScheme.text }]}>
+                {item.text}
+              </Text>
+            </View>
+          </TouchableOpacity>
         ))}
 
         {filteredItems.length === 0 && (
@@ -196,6 +229,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#F9FAFB',
   },
   notFound: { fontSize: 18, color: '#666' },
+  progressContainer: {
+    paddingVertical: 8,
+  },
+  progressBar: { height: 8, borderRadius: 4 },
+  progressText: { marginTop: 4, fontSize: 14, textAlign: 'center' },
   body: {
     margin: 16,
     padding: 16,
@@ -217,7 +255,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 0,
     borderRadius: 8,
-    marginBottom: 8,
   },
   itemIcon: { marginRight: 8 },
   itemText: { fontSize: 16, flexShrink: 1 },

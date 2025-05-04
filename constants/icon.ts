@@ -1,6 +1,6 @@
 import { IconName } from '@/types';
 
-export const DEFAULT_ICON = 'star';
+export const DEFAULT_ICON = 'briefcase';
 
 export const ICON_OPTIONS: IconName[] = [
   'briefcase', // Work
