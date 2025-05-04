@@ -46,4 +46,4 @@ export const CHECKLIST_COLOR_SCHEMES = {
   },
 } as const;
 
-export const DEFAULT_CHECKLIST_COLOR_SCHEME = ChecklistColorScheme.peach;
+export const DEFAULT_CHECKLIST_COLOR_SCHEME = ChecklistColorScheme.lemon;

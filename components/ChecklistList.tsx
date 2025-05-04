@@ -103,7 +103,10 @@ export default function ChecklistsList() {
     <View style={styles.emptyContainer}>
       <MaterialCommunityIcons name="playlist-plus" size={48} color="#999" />
       <Text style={styles.emptyText}>
-        Create your first checklist by clicking the + icon above. <br />
+        Create your first checklist by clicking the + icon above.
+        <View style={{ height: 8 }} />
+      </Text>
+      <Text style={styles.emptyText}>
         Note that before creating checklists, you need to create a template
         first.
       </Text>

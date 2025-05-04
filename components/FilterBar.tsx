@@ -32,7 +32,6 @@ export default function FilterBar({
         value={searchQuery}
         onChangeText={onSearchChange}
         style={styles.input}
-        // left={<TextInput.Icon name="magnify" />}
         outlineColor={theme.colors.backdrop}
         activeOutlineColor={theme.colors.primary}
       />

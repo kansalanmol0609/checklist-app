@@ -1,11 +1,11 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import { BottomNavigation } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import ChecklistTemplatesList from '@/components/ChecklistTemplatesList';
 import ChecklistsList from '@/components/ChecklistList';
 import Header from '@/components/Header';
+import { useData } from '@/contexts/data';
 
 const ROUTES = [
   {
@@ -38,14 +38,14 @@ const RENDER_SCENE = BottomNavigation.SceneMap({
 });
 
 export default function HomePage() {
-  const [index, setIndex] = React.useState(0);
+  const { routeIndex, setRouteIndex } = useData();
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Header title={index === 0 ? 'Checklists' : 'Templates'} />
+    <>
+      <Header title={routeIndex === 0 ? 'Checklists' : 'Templates'} />
       <BottomNavigation
-        navigationState={{ index, routes: ROUTES }}
-        onIndexChange={setIndex}
+        navigationState={{ index: routeIndex, routes: ROUTES }}
+        onIndexChange={setRouteIndex}
         renderScene={RENDER_SCENE}
         renderIcon={({ route, focused, color }) => {
           const icon = ROUTES.find((r) => r.key === route.key)?.icon;
@@ -53,14 +53,11 @@ export default function HomePage() {
         }}
         barStyle={styles.navbar}
       />
-    </SafeAreaView>
+    </>
   );
 }
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F9FAFB',
-  },
   content: {
     flex: 1,
     padding: 16,

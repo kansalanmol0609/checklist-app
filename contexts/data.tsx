@@ -33,12 +33,16 @@ export interface DataContextType {
   addTemplate: (t: ChecklistTemplate) => Promise<void>;
   updateTemplate: (t: ChecklistTemplate) => Promise<void>;
   removeTemplate: (id: string) => Promise<void>;
+  routeIndex: number;
+  setRouteIndex: (index: number) => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
 // --- Provider ---
 export const DataProvider = ({ children }: { children: ReactNode }) => {
+  const [routeIndex, setRouteIndex] = React.useState(0);
+
   const [isReady, setIsReady] = useState(false);
   const [checklists, setChecklists] = useState<Checklist[]>([]);
   const [templates, setTemplates] = useState<ChecklistTemplate[]>([]);
@@ -145,6 +149,8 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         addTemplate,
         updateTemplate,
         removeTemplate,
+        routeIndex,
+        setRouteIndex,
       }}
     >
       {children}

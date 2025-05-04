@@ -5,10 +5,11 @@ import {
   StyleSheet,
   useWindowDimensions,
   Text,
+  TouchableOpacity,
 } from 'react-native';
 import { Card, Title } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 import { useData } from '@/contexts/data';
 import { CHECKLIST_COLOR_SCHEMES } from '@/constants/checklistColorSchemes';
 import FilterBar from '@/components/FilterBar';
@@ -22,7 +23,7 @@ export default function TemplatesList() {
     keyof typeof CHECKLIST_COLOR_SCHEMES | undefined
   >(undefined);
   const { width } = useWindowDimensions();
-  const navigation = useNavigation();
+  const router = useRouter();
 
   // Determine columns: mobile = 1, web/tablet = 2 or 3
   let numColumns = 1;
@@ -45,10 +46,7 @@ export default function TemplatesList() {
     return inTitle || inItems;
   });
 
-  const handleAddTemplate = () => {
-    // Navigate to your template creation screen
-    // navigation.navigate('CreateTemplate');
-  };
+  const handleAddTemplate = () => router.push('/checklist-template/create');
 
   const renderTemplate = ({ item }: { item: ChecklistTemplate }) => {
     const scheme = CHECKLIST_COLOR_SCHEMES[item.colorScheme];
@@ -57,46 +55,52 @@ export default function TemplatesList() {
     const hasMore = item.items.length > maxItems;
 
     return (
-      <Card style={[styles.card, { backgroundColor: scheme.background }]}>
-        <Card.Content>
-          <View style={styles.header}>
-            <MaterialCommunityIcons
-              name={item.icon}
-              size={24}
-              color={scheme.icon}
-              style={styles.icon}
-            />
-            <Title style={[styles.title, { color: scheme.text }]}>
-              {item.title}
-            </Title>
-          </View>
+      <TouchableOpacity
+        activeOpacity={0.8}
+        onPress={() => router.push(`/checklist-template/view/${item.id}`)}
+        style={[styles.cardWrapper, { backgroundColor: scheme.background }]}
+      >
+        <Card style={[styles.card, { backgroundColor: scheme.background }]}>
+          <Card.Content>
+            <View style={styles.header}>
+              <MaterialCommunityIcons
+                name={item.icon}
+                size={24}
+                color={scheme.icon}
+                style={styles.icon}
+              />
+              <Title style={[styles.title, { color: scheme.text }]}>
+                {item.title}
+              </Title>
+            </View>
 
-          <View style={styles.itemsContainer}>
-            {visibleItems.map((it) => (
-              <View key={it.id} style={styles.itemRow}>
-                <MaterialCommunityIcons
-                  name="checkbox-blank-outline"
-                  size={16}
-                  color={scheme.icon}
-                  style={styles.itemIcon}
-                />
-                <Text
-                  style={[styles.itemText, { color: scheme.text }]}
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                >
-                  {it.text}
+            <View style={styles.itemsContainer}>
+              {visibleItems.map((it) => (
+                <View key={it.id} style={styles.itemRow}>
+                  <MaterialCommunityIcons
+                    name="checkbox-blank-outline"
+                    size={16}
+                    color={scheme.icon}
+                    style={styles.itemIcon}
+                  />
+                  <Text
+                    style={[styles.itemText, { color: scheme.text }]}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {it.text}
+                  </Text>
+                </View>
+              ))}
+              {hasMore && (
+                <Text style={[styles.moreText, { color: scheme.icon }]}>
+                  +{item.items.length - maxItems} more
                 </Text>
-              </View>
-            ))}
-            {hasMore && (
-              <Text style={[styles.moreText, { color: scheme.icon }]}>
-                +{item.items.length - maxItems} more
-              </Text>
-            )}
-          </View>
-        </Card.Content>
-      </Card>
+              )}
+            </View>
+          </Card.Content>
+        </Card>
+      </TouchableOpacity>
     );
   };
 
@@ -154,13 +158,19 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     padding: 16,
+    rowGap: 16,
   },
   row: {
     justifyContent: 'space-between',
+    columnGap: 16,
+  },
+  cardWrapper: {
+    flex: 1,
+    margin: 0,
   },
   card: {
     flex: 1,
-    margin: 8,
+    margin: 0,
     borderRadius: 12,
     elevation: 2,
   },

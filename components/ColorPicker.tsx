@@ -12,10 +12,15 @@ import { CHECKLIST_COLOR_SCHEMES } from '@/constants/checklistColorSchemes';
 
 interface ColorPickerProps {
   value?: keyof typeof CHECKLIST_COLOR_SCHEMES;
-  onChange: (colorKey?: keyof typeof CHECKLIST_COLOR_SCHEMES) => void;
+  onChange: (colorKey?: ColorPickerProps['value']) => void;
+  hideEmpty?: boolean;
 }
 
-export default function ColorPicker({ value, onChange }: ColorPickerProps) {
+export default function ColorPicker({
+  value,
+  onChange,
+  hideEmpty,
+}: ColorPickerProps) {
   const theme = useTheme();
   const [visible, setVisible] = useState(false);
 
@@ -77,32 +82,34 @@ export default function ColorPicker({ value, onChange }: ColorPickerProps) {
               >
                 <View style={styles.grid}>
                   {/* Clear option */}
-                  <TouchableOpacity
-                    style={[
-                      styles.circle,
-                      {
-                        borderColor: !value
-                          ? theme.colors.primary
-                          : theme.colors.secondary,
-                      },
-                    ]}
-                    onPress={clearColor}
-                  >
-                    <MaterialCommunityIcons
-                      name="invert-colors-off"
-                      size={24}
-                      color={theme.colors.secondary}
-                    />
-
-                    {!value && (
+                  {hideEmpty ? null : (
+                    <TouchableOpacity
+                      style={[
+                        styles.circle,
+                        {
+                          borderColor: !value
+                            ? theme.colors.primary
+                            : theme.colors.secondary,
+                        },
+                      ]}
+                      onPress={clearColor}
+                    >
                       <MaterialCommunityIcons
-                        name="check-circle"
-                        size={20}
-                        color={theme.colors.primary}
-                        style={styles.circleTick}
+                        name="invert-colors-off"
+                        size={24}
+                        color={theme.colors.secondary}
                       />
-                    )}
-                  </TouchableOpacity>
+
+                      {!value && (
+                        <MaterialCommunityIcons
+                          name="check-circle"
+                          size={20}
+                          color={theme.colors.primary}
+                          style={styles.circleTick}
+                        />
+                      )}
+                    </TouchableOpacity>
+                  )}
 
                   {/* Color options */}
                   {Object.entries(CHECKLIST_COLOR_SCHEMES).map(
@@ -181,6 +188,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
+    zIndex: 1001,
   },
   grid: {
     flexDirection: 'row',
