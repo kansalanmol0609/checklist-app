@@ -63,8 +63,8 @@ A checklist app built with React Native, Expo, and React Native Paper. Users can
 ### Installation
 
 ```bash
-git clone https://github.com/kansalanmol0609/mobile-checklist-app.git
-cd mobile-checklist-app
+git clone https://github.com/kansalanmol0609/checklist-app.git
+cd checklist-app
 npm install # or yarn install
 ```
 
@@ -110,7 +110,7 @@ npm install # or yarn install
 ## File Structure
 
 ```
-/mobile-checklist-app
+/checklist-app
 ├── app/                   # Expo Router screens
 │   ├── index.tsx          # Home (Checklists)
 │   ├── checklist/         # Checklist view
