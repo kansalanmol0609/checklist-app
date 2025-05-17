@@ -32,7 +32,7 @@ export default function Header({ title, showBack }: HeaderProps) {
       <Appbar.Action
         icon="account-circle"
         size={24}
-        onPress={() => navigation.navigate('Profile')}
+        onPress={() => navigation.navigate('profile')}
       />
     </Appbar.Header>
   );

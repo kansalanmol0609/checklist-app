@@ -1,54 +1,72 @@
-# Checklist App
+# Checklist App Monorepo
 
-A checklist app built with React Native, Expo, and React Native Paper. Users can create and reuse checklist templates, manage multiple checklists, and track completion progress.
+A monorepo containing both the **mobile app** (React Native/Expo) and the **backend API** (Node.js/Express). This structure allows for easier development, deployment, and contribution across both codebases.
 
 ## Table of Contents
 
+- [Monorepo Structure](#monorepo-structure)
 - [Features](#features)
 - [Screenshots](#screenshots)
 - [Tech Stack](#tech-stack)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
-  - [Running in Development](#running-in-development)
+  - [Running the Mobile App](#running-the-mobile-app)
+  - [Running the Backend API](#running-the-backend-api)
 - [Building for Production](#building-for-production)
-  - [Android (.apk/.aab)](#android-apk-aab)
-  - [iOS (.ipa)](#ios-ipa)
+  - [Mobile App](#mobile-app)
+  - [Backend API](#backend-api)
 - [File Structure](#file-structure)
 - [Contributing](#contributing)
 - [License](#license)
 
+## Monorepo Structure
+
+```
+/checklist-app
+├── backend/      # Node.js/Express backend API
+├── mobile/       # React Native (Expo) mobile app
+├── README.md     # Monorepo overview (this file)
+└── ...           # Root configs, etc.
+```
+
 ## Features
 
-- Create, edit, and delete checklist templates
-- Instantiate checklists from templates on the fly
-- Mark items complete and view progress (e.g. `3 / 7 done`)
-- Filter templates and checklists by color and text
-- Responsive layout: single column on mobile, multi-column on tablet/web
-- Persist data locally (AsyncStorage)
+- Mobile: Create, edit, and delete checklist templates
+- Mobile: Instantiate checklists from templates on the fly
+- Mobile: Mark items complete and view progress (e.g. `3 / 7 done`)
+- Mobile: Filter templates and checklists by color and text
+- Mobile: Responsive layout (single column on mobile, multi-column on tablet/web)
+- Mobile: Persist data locally (AsyncStorage)
+- Backend: REST API for checklist data (WIP)
 
-## Screenshots
+## Screenshots (Mobile)
 
 - **Home / Checklists**
-  ![Home Screen](./screens/home.png)
+  ![Home Screen](./docs/assets/home.png)
 - **Templates List**
-  ![Templates List](./screens/templates.png)
+  ![Templates List](./docs/assets/templates.png)
 - **View Template**
-  ![View Template](./screens/view-template.png)
+  ![View Template](./docs/assets/view-template.png)
 - **Create / Edit Template**
-  ![Create Template](./screens/create-template.png)
+  ![Create Template](./docs/assets/create-template.png)
 - **View & Complete Checklist**
-  ![View Checklist](./screens/view-checklist.png)
+  ![View Checklist](./docs/assets/view-checklist.png)
 
 ## Tech Stack
 
-- **React Native** (via [Expo](https://expo.dev))
-- **Expo Router** for file-based routing
-- **React Native Paper** for UI components
-- **@expo/vector-icons** (MaterialCommunityIcons)
-- **react-native-get-random-values** + `uuid` for IDs
-- **AsyncStorage** (via context) for local persistence
-- **Reanimated** for optional animations
+- **Mobile:**
+  - React Native (Expo)
+  - Expo Router (file-based routing)
+  - React Native Paper (UI components)
+  - @expo/vector-icons (MaterialCommunityIcons)
+  - AsyncStorage (via context) for local persistence
+  - Reanimated (optional animations)
+- **Backend:**
+  - Node.js
+  - Express
+  - TypeScript
+  - MongoDB (planned)
 
 ## Getting Started
 
@@ -56,23 +74,32 @@ A checklist app built with React Native, Expo, and React Native Paper. Users can
 
 - **Node.js** >= 16
 - **Yarn** or **npm**
-- **Expo CLI**: `npm install -g expo-cli`
-- **Android SDK** (set `ANDROID_HOME`)
-- **Xcode** (macOS, for iOS simulator / builds)
+- **Expo CLI**: `npm install -g expo-cli` (for mobile)
+- **Android SDK** (for Android builds)
+- **Xcode** (macOS, for iOS builds)
 
 ### Installation
+
+Clone the repo and install dependencies for both projects:
 
 ```bash
 git clone https://github.com/kansalanmol0609/mobile-checklist-app.git
 cd mobile-checklist-app
+# Install root dependencies (if any)
+# Install mobile dependencies
+cd mobile
+npm install # or yarn install
+# Install backend dependencies
+cd ../backend
 npm install # or yarn install
 ```
 
-### Running in Development
+### Running the Mobile App
 
 - **Expo Go** (fast reload, no native build):
 
   ```bash
+  cd mobile
   expo start
   ```
 
@@ -84,54 +111,69 @@ npm install # or yarn install
   expo run:ios
   ```
 
+### Running the Backend API
+
+```bash
+cd backend
+npm run dev
+```
+
+The backend will start on the configured port (see backend/README.md for details).
+
 ## Building for Production
 
-### Android (.apk/.aab)
+### Mobile App
 
-- **Cloud build** (EAS):
-  ```bash
-  eas build --platform android
-  ```
-- **Local AAB→APK** (bundletool):
-  ```bash
-  eas build --platform android --local --profile preview
-  ```
+- **Android (.apk/.aab)**
+  - Cloud build (EAS):
+    ```bash
+    eas build --platform android
+    ```
+  - Local AAB→APK (bundletool):
+    ```bash
+    eas build --platform android --local --profile preview
+    ```
+- **iOS (.ipa)**
+  - Cloud build (EAS):
+    ```bash
+    eas build --platform ios
+    ```
+  - Xcode archive:
+    1. Open `ios/YourApp.xcworkspace` in Xcode.
+    2. Product → Archive → Distribute App.
 
-### iOS (.ipa)
+### Backend API
 
-- **Cloud build** (EAS):
+- Build and run production server:
   ```bash
-  eas build --platform ios
+  cd backend
+  npm run build
+  npm start
   ```
-- **Xcode archive**:
-  1. Open `ios/YourApp.xcworkspace` in Xcode.
-  2. Product → Archive → Distribute App.
 
 ## File Structure
 
 ```
-/mobile-checklist-app
-├── app/                   # Expo Router screens
-│   ├── index.tsx          # Home (Checklists)
-│   ├── checklist/         # Checklist view
-│   └── checklist-template/
-│       ├── create.tsx     # New template
-│       ├── [id].tsx       # View template
-│       └── [id]/edit.tsx  # Edit template
-├── components/            # Reusable UI components
-│   ├── Header.tsx
-│   ├── FilterBar.tsx
-│   ├── ColorPicker.tsx
-│   ├── IconPicker.tsx
-│   └── TemplatePicker.tsx
-├── contexts/              # React context for data
-├── constants/             # Color schemes, icons, etc.
-├── types/                 # TypeScript types
-├── assets/                # Images and fonts
-├── ios/                   # iOS native project
-├── android/               # Android native project
-├── README.md              # Project overview and instructions
-└── eas.json               # EAS build configuration
+/checklist-app
+├── backend/
+│   ├── src/            # Express API source code
+│   ├── models/         # Database models
+│   ├── routes/         # API routes
+│   ├── middleware/     # Express middleware
+│   ├── package.json
+│   └── ...
+├── mobile/
+│   ├── app/            # Expo Router screens
+│   ├── components/     # Reusable UI components
+│   ├── contexts/       # React context for data
+│   ├── constants/      # Color schemes, icons, etc.
+│   ├── assets/         # Images and fonts
+│   ├── types.ts        # TypeScript types
+│   ├── utils/          # Utility functions
+│   ├── package.json
+│   └── ...
+├── README.md           # Monorepo overview
+└── ...                 # Root configs, etc.
 ```
 
 ## Contributing

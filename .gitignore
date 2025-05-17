@@ -1,15 +1,32 @@
 # Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 
-# dependencies
+# Dependencies
 node_modules/
 
-# Expo
-.expo/
+# Build outputs
 dist/
+build/
+
+# TypeScript
+*.tsbuildinfo
+
+# Mobile app specific
+mobile/.expo/
+mobile/web-build/
+mobile/expo-env.d.ts
+mobile/.kotlin/
+mobile/*.orig.*
+mobile/*.jks
+mobile/*.p8
+mobile/*.p12
+mobile/*.key
+mobile/*.mobileprovision
+mobile/.metro-health-check*
+mobile/android/
+mobile/ios/
+.expo
 web-build/
 expo-env.d.ts
-
-# Native
 .kotlin/
 *.orig.*
 *.jks
@@ -17,25 +34,42 @@ expo-env.d.ts
 *.p12
 *.key
 *.mobileprovision
-
-# Metro
 .metro-health-check*
+android/
+ios/
 
-# debug
+# Expo
+.expo-shared/
+# React Native
+metro-bundler-cache/
+metro-cache/
+metro-minify-cache/
+metro-react-native-babel-preset/
+react-native-packager-cache-*
+react-native/
+# Misc
+.DS_Store
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Debug logs
 npm-debug.*
 yarn-debug.*
 yarn-error.*
 
-# macOS
+# OS specific
 .DS_Store
 *.pem
 
-# local env files
-.env*.local
-
-# typescript
-*.tsbuildinfo
-
-# Build directories
-android/
-ios/
+# Environment variables
+*.env
+*.env.local
+*.env*.local
+*.env*.json
+*.env*.yaml
+*.env*.yml
+*.env*.properties
+*.env*.xml
+*.env*.toml

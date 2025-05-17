@@ -18,6 +18,8 @@ export interface ChecklistTemplate {
   icon: IconName; // e.g. 'briefcase', 'cake'
   colorScheme: (typeof ChecklistColorScheme)[keyof typeof ChecklistColorScheme]; // e.g. 'peach'
   items: ChecklistTemplateItem[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ChecklistItem {
@@ -26,11 +28,13 @@ export interface ChecklistItem {
   completed: boolean;
 }
 
-export interface Checklist {
+export type Checklist = {
   id: string;
-  templateId?: string; // optional link
+  templateId?: string;
   title: string;
   icon: IconName; // e.g. 'airplane', 'dumbbell'
   colorScheme: (typeof ChecklistColorScheme)[keyof typeof ChecklistColorScheme]; // e.g. 'peach'
   items: ChecklistItem[];
-}
+  createdAt: string;
+  updatedAt: string;
+};

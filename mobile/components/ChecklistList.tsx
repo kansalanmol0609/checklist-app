@@ -161,6 +161,7 @@ export default function ChecklistsList() {
         renderNoMatch()
       ) : (
         <FlatList
+          key={numColumns}
           data={sortedChecklists}
           keyExtractor={(c) => c.id}
           renderItem={renderChecklist}

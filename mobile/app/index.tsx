@@ -6,6 +6,7 @@ import ChecklistTemplatesList from '@/components/ChecklistTemplatesList';
 import ChecklistsList from '@/components/ChecklistList';
 import Header from '@/components/Header';
 import { useData } from '@/contexts/data';
+import withAuth from '@/components/withAuth';
 
 const ROUTES = [
   {
@@ -37,7 +38,7 @@ const RENDER_SCENE = BottomNavigation.SceneMap({
   templates: ChecklistTemplatesList,
 });
 
-export default function HomePage() {
+function HomePage() {
   const { routeIndex, setRouteIndex } = useData();
 
   return (
@@ -56,6 +57,8 @@ export default function HomePage() {
     </>
   );
 }
+
+export default withAuth(HomePage);
 
 const styles = StyleSheet.create({
   content: {
